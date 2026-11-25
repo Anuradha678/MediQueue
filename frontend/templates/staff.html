@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard – {{ clinic_name }}</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="background-color: #F1F5F9;">
+
+    <!-- ================= SITE HEADER ================= -->
+    <header class="site-header">
+        <div class="container nav-wrapper">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <div class="brand-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="brand-text">Medi<span>Queue</span> <small style="font-size: 0.75rem; background: var(--secondary-tint); color: var(--secondary); padding: 0.2rem 0.6rem; border-radius: 999px; margin-left: 0.25rem;">Staff Console</small></div>
+            </a>
+
+            <div class="nav-actions">
+                <span style="font-size: 0.9rem; font-weight: 600; color: var(--secondary); display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
+                    <i class="fas fa-user-circle" style="color: var(--primary); font-size: 1.25rem;"></i>
+                    <span id="headerDoctorName">{{ logged_doctor_name }}</span>
+                </span>
+                <button type="button" id="btnLogout" class="btn btn-outline btn-sm" style="color: #DC2626; border-color: #FECACA;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Dashboard Title & Refresh Bar -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h2>Doctor Consultation Console</h2>
+                    <p id="lastUpdatedTime">Loading live data from database...</p>
+                </div>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <button type="button" id="btnManualRefresh" class="btn btn-outline btn-sm">
+                        <i class="fas fa-sync-alt"></i> Refresh Data
+                    </button>
+                    <a href="{{ url_for('patient') }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-external-link-alt"></i> Open Intake Form
+                    </a>
+                </div>
+            </div>
+
+            <!-- 1. Top Statistics Cards -->
+            <div class="stats-grid">
+                <!-- Stat 1: Total -->
+                <div class="stat-card stat-total">
+                    <div class="stat-info">
+                        <div class="stat-label">Total Patients Today</div>
+                        <div class="stat-value" id="statTotalPatients">0</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+
+                <!-- Stat 2: Waiting -->
+                <div class="stat-card stat-waiting">
+                    <div class="stat-info">
+                        <div class="stat-label">Waiting Patients</div>
+                        <div class="stat-value" id="statWaitingPatients" style="color: #D97706;">0</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+
+                <!-- Stat 3: Completed -->
+                <div class="stat-card stat-completed">
+                    <div class="stat-info">
+                        <div class="stat-label">Completed Consultations</div>
+                        <div class="stat-value" id="statCompletedPatients" style="color: #059669;">0</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+
+                <!-- Stat 4: Missed -->
+                <div class="stat-card stat-missed">
+                    <div class="stat-info">
+                        <div class="stat-label">Missed Patients</div>
+                        <div class="stat-value" id="statMissedPatients" style="color: #DC2626;">0</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-user-times"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Current Patient Section -->
+            <div class="current-patient-card">
+                <div class="current-patient-grid">
+                    <div>
+                        <div class="current-serving-badge">
+                            <i class="fas fa-stethoscope"></i> Current Consultation
+                        </div>
+                        <div class="current-token-number" id="currentServingToken">None</div>
+                        <div class="current-patient-meta">
+                            <strong id="currentPatientName" style="font-size: 1.35rem; color: var(--secondary);">No patient currently being served</strong>
+                            <div id="currentPatientPhone" style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem;">Click "Next Patient" to call the earliest waiting patient.</div>
+                        </div>
+                    </div>
+
+                    <!-- Current Patient Action Buttons -->
+                    <div class="current-actions-box" id="currentActionsBox">
+                        <button type="button" id="btnNextPatient" class="btn btn-primary btn-lg" style="width: 100%;">
+                            <i class="fas fa-forward"></i> Next Patient
+                        </button>
+                        <div style="display: flex; gap: 0.5rem; width: 100%;">
+                            <button type="button" id="btnCompleteCurrent" class="btn btn-success" style="flex: 1; display: none;">
+                                <i class="fas fa-check"></i> Complete
+                            </button>
+                            <button type="button" id="btnMissedCurrent" class="btn btn-danger" style="flex: 1; display: none;">
+                                <i class="fas fa-user-slash"></i> Missed
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Patient Queue Table Card -->
+            <div class="queue-table-card">
+                <!-- Toolbar with Search and Filter Tabs -->
+                <div class="table-toolbar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="queueSearchInput" placeholder="Search by name, token or phone..." autocomplete="off">
+                    </div>
+
+                    <div class="filter-pills">
+                        <button type="button" class="filter-pill active" data-filter="all">All</button>
+                        <button type="button" class="filter-pill" data-filter="waiting">Waiting</button>
+                        <button type="button" class="filter-pill" data-filter="serving">Serving</button>
+                        <button type="button" class="filter-pill" data-filter="completed">Completed</button>
+                        <button type="button" class="filter-pill" data-filter="missed">Missed</button>
+                    </div>
+                </div>
+
+                <!-- Table Content -->
+                <div class="table-responsive">
+                    <table class="queue-table">
+                        <thead>
+                            <tr>
+                                <th>Token Number</th>
+                                <th>Patient Name</th>
+                                <th>Phone Number</th>
+                                <th>Registration Time</th>
+                                <th>Status</th>
+                                <th style="min-width: 170px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queueTableBody">
+                            <!-- Populated dynamically via dashboard.js -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="tableEmptyState" style="display: none;">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h4>No Patients in Queue</h4>
+                    <p style="font-size: 0.9rem;">No patient records match the selected filter for today.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer" style="margin-top: 3rem;">
+        <div class="container">
+            <div class="footer-bottom" style="border: none; padding-top: 0;">
+                <div>&copy; {{ current_year }} {{ clinic_name }}. Doctor Administration Portal.</div>
+                <div>Connected to Active Database</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

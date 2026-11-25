@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact & Clinic Location – {{ clinic_name }}</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- ================= SITE HEADER ================= -->
+    <header class="site-header">
+        <div class="container nav-wrapper">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <div class="brand-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="brand-text">Medi<span>Queue</span></div>
+            </a>
+
+            <nav class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('about') }}" class="nav-link">About</a>
+                <a href="{{ url_for('contact') }}" class="nav-link active">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="{{ url_for('track_queue') }}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-search-location"></i> Track Queue
+                </a>
+                <a href="{{ url_for('patient') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-ticket-alt"></i> Get Token
+                </a>
+                {% if is_doctor_logged_in %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm btn-doctor">
+                        <i class="fas fa-user-md"></i> Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm btn-doctor">
+                        <i class="fas fa-user-md"></i> Doctor Login
+                    </a>
+                {% endif %}
+                <button class="mobile-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div class="mobile-menu" id="mobileNavMenu">
+            <a href="{{ url_for('index') }}" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            <a href="{{ url_for('about') }}" class="nav-link"><i class="fas fa-info-circle"></i> About Clinic</a>
+            <a href="{{ url_for('contact') }}" class="nav-link active"><i class="fas fa-envelope"></i> Contact Us</a>
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+            <a href="{{ url_for('patient') }}" class="btn btn-primary"><i class="fas fa-ticket-alt"></i> Patient Registration</a>
+            <a href="{{ url_for('track_queue') }}" class="btn btn-outline"><i class="fas fa-search-location"></i> Track My Queue</a>
+        </div>
+    </header>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content">
+        <div class="container">
+            
+            <div class="section-header" style="margin-bottom: 2.5rem;">
+                <span class="section-tag">Reach Our Medical Team</span>
+                <h1 class="section-title">Contact & Clinic Location</h1>
+                <p class="section-subtitle">
+                    Have questions regarding your appointment, queuing, or visiting hours? We are here to help.
+                </p>
+            </div>
+
+            <div class="contact-grid">
+                
+                <!-- Contact Information Column -->
+                <div>
+                    <div class="card" style="margin-bottom: 1.5rem;">
+                        <h3 class="card-title" style="margin-bottom: 1.25rem;"
+                            <i class="fas fa-clinic-medical" style="color: var(--primary);"></i> Clinic Information
+                        </h3>
+
+                        <div class="contact-info-list">
+                            <div class="contact-item">
+                                <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                <div>
+                                    <strong style="color: var(--secondary); display: block;">Address</strong>
+                                    <span style="color: var(--text-muted); font-size: 0.95rem;">{{ clinic_address }}</span>
+                                </div>
+                            </div>
+
+                            <div class="contact-item">
+                                <div class="contact-icon"><i class="fas fa-phone-alt"></i></div>
+                                <div>
+                                    <strong style="color: var(--secondary); display: block;">Phone Numbers</strong>
+                                    <span style="color: var(--text-muted); font-size: 0.95rem;">Reception: {{ clinic_phone }}</span><br>
+                                    
+                            </div>
+
+                            <div class="contact-item">
+                                <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                                <div>
+                                    <strong style="color: var(--secondary); display: block;">Email Support</strong>
+                                    <span style="color: var(--text-muted); font-size: 0.95rem;">{{ clinic_email }}</span>
+                                </div>
+                            </div>
+
+                            <div class="contact-item">
+                                <div class="contact-icon"><i class="fas fa-clock"></i></div>
+                                <div>
+                                    <strong style="color: var(--secondary); display: block;">Operating Hours</strong>
+                                    <span style="color: var(--text-muted); font-size: 0.95rem;">{{ clinic_hours }}</span><br>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Guidelines Box -->
+                    <div style="background-color: #FEF2F2; border: 1.5px solid #FECACA; border-radius: var(--radius-lg); padding: 1.25rem 1.5rem;">
+                        <h4 style="color: #991B1B; font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem;">
+                            <i class="fas fa-exclamation-triangle"></i> Severe Medical Emergencies
+                        </h4>
+                        <p style="color: #B91C1C; font-size: 0.875rem; line-height: 1.5;">
+                            MediQueue is an outpatient family clinic with one consulting physician. If you or a loved one are experiencing acute chest pain, severe shortness of breath, sudden numbness, or heavy bleeding, please call emergency services immediately or visit the nearest hospital emergency department.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Inquiry & Feedback Form Column -->
+                <div>
+                    <div class="card">
+                        <h3 class="card-title" style="margin-bottom: 0.5rem;">
+                            <i class="fas fa-paper-plane" style="color: var(--primary);"></i> Send an Inquiry
+                        </h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                            Leave a non-urgent message for Dr. Suraweera's administrative desk.
+                        </p>
+
+                        <form id="contactForm" onsubmit="event.preventDefault(); showToast('Thank you! Your message has been received.', 'success'); this.reset();">
+                            <div class="form-group">
+                                <label for="contactName" class="form-label">Your Name</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-user prefix-icon"></i>
+                                    <input type="text" id="contactName" class="form-control" placeholder="e.g. John Doe" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactEmail" class="form-label">Email Address</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-envelope prefix-icon"></i>
+                                    <input type="email" id="contactEmail" class="form-control" placeholder="e.g. john@example.com" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactSubject" class="form-label">Subject</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-tag prefix-icon"></i>
+                                    <input type="text" id="contactSubject" class="form-control" placeholder="e.g. Question regarding queue system" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactMsg" class="form-label">Message</label>
+                                <textarea id="contactMsg" class="form-control" rows="4" style="padding-left: 1rem;" placeholder="Write your message here..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                                <i class="fas fa-paper-plane"></i> Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom" style="border: none; padding-top: 0;">
+                <div>&copy; {{ current_year }} {{ clinic_name }}. All rights reserved.</div>
+                <div>Compassionate Family Care</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

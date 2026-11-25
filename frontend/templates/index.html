@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ clinic_name }} – Smart Digital Queue Management</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- ================= SITE HEADER ================= -->
+    <header class="site-header">
+        <div class="container nav-wrapper">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <div class="brand-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="brand-text">Medi<span>Queue</span></div>
+            </a>
+
+            <nav class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link active">Home</a>
+                <a href="{{ url_for('about') }}" class="nav-link">About</a>
+                <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="{{ url_for('track_queue') }}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-search-location"></i> Track Queue
+                </a>
+                <a href="{{ url_for('patient') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-ticket-alt"></i> Get Token
+                </a>
+                {% if is_doctor_logged_in %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm btn-doctor">
+                        <i class="fas fa-user-md"></i> Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm btn-doctor">
+                        <i class="fas fa-user-md"></i> Doctor Login
+                    </a>
+                {% endif %}
+                <button class="mobile-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div class="mobile-menu" id="mobileNavMenu">
+            <a href="{{ url_for('index') }}" class="nav-link active"><i class="fas fa-home"></i> Home</a>
+            <a href="{{ url_for('about') }}" class="nav-link"><i class="fas fa-info-circle"></i> About Clinic</a>
+            <a href="{{ url_for('contact') }}" class="nav-link"><i class="fas fa-envelope"></i> Contact Us</a>
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+            <a href="{{ url_for('patient') }}" class="btn btn-primary"><i class="fas fa-ticket-alt"></i> Patient Registration</a>
+            <a href="{{ url_for('track_queue') }}" class="btn btn-outline"><i class="fas fa-search-location"></i> Track My Queue</a>
+            {% if is_doctor_logged_in %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary"><i class="fas fa-user-md"></i> Doctor Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-secondary"><i class="fas fa-user-md"></i> Doctor Login</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <i class="fas fa-clinic-medical"></i> Single Doctor Practice Queue
+                    </div>
+                    <h1 class="hero-title">
+                        Your Health, Your Time, <span>Your Queue.</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Skip the waiting room confusion. Manage your medical appointments with MediQueue.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="{{ url_for('patient') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-ticket-alt"></i> Patient Registration
+                        </a>
+                        <a href="{{ url_for('track_queue') }}" class="btn btn-outline btn-lg">
+                            <i class="fas fa-search"></i> Track Queue
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Hero Graphic & Real-Time Clinic Board -->
+                <div class="hero-graphic">
+                    <div class="hero-widget-card">
+                        <div class="widget-header">
+                            <div class="widget-clinic-info">
+                                <h4>{{ clinic_name }}</h4>
+                                <p><i class="fas fa-user-md" style="color: var(--primary);"></i> {{ doctor_name }}</p>
+                            </div>
+                            <div class="pulse-indicator">
+                                <span class="pulse-dot"></span> LIVE CLINIC
+                            </div>
+                        </div>
+
+                        <div class="widget-serving-box">
+                            <div class="label">Now Serving Token</div>
+                            <div class="token" id="homeServingToken">Loading...</div>
+                        </div>
+
+                        <div class="widget-stats-row">
+                            <div class="widget-mini-stat">
+                                <i class="fas fa-users-clock"></i>
+                                <div>
+                                    <span class="val" id="homeWaitingCount">-</span>
+                                    <span class="sub">Waiting In Clinic</span>
+                                </div>
+                            </div>
+                            <div class="widget-mini-stat">
+                                <i class="fas fa-clipboard-check"></i>
+                                <div>
+                                    <span class="val" id="homeTotalToday">-</span>
+                                    <span class="sub">Total Patients Today</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Cards Section -->
+        <section class="features-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">Designed for Simplicity</span>
+                    <h2 class="section-title">A Seamless Patient Experience</h2>
+                    <p class="section-subtitle">
+                        Everything you need for effortless, transparent, and stress-free medical consultations.
+                    </p>
+                </div>
+
+                <div class="features-grid">
+                    <!-- Feature 1 -->
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <i class="fas fa-id-card-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Easy Registration</h3>
+                        <p class="feature-desc">
+                            Register in seconds with just your name and contact details. Receive an instant daily token number without standing in crowded lines.
+                        </p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <i class="fas fa-satellite-dish"></i>
+                        </div>
+                        <h3 class="feature-title">Smart Queue Tracking</h3>
+                        <p class="feature-desc">
+                            Monitor the live queue from your smartphone anywhere. Get real-time updates on patients ahead and your estimated consultation time.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <h3 class="feature-title">Efficient Patient Management</h3>
+                        <p class="feature-desc">
+                            Streamlined consultation flow for the doctor. Smooth one-click patient transitions, attendance management, and queue progression.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">Step-by-Step Guide</span>
+                    <h2 class="section-title">How MediQueue Works</h2>
+                    <p class="section-subtitle">
+                        Four effortless steps from arrival to doctor consultation.
+                    </p>
+                </div>
+
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-icon"><i class="fas fa-user-plus"></i></div>
+                        <h4 class="step-title">Register Details</h4>
+                        <p class="step-desc">Enter your full name and phone number on our quick digital intake form.</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-icon"><i class="fas fa-ticket-alt"></i></div>
+                        <h4 class="step-title">Get Daily Token</h4>
+                        <p class="step-desc">Receive your unique sequential token (e.g. MQ-001) generated instantly for today.</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-icon"><i class="fas fa-clock"></i></div>
+                        <h4 class="step-title">Track Live Status</h4>
+                        <p class="step-desc">Keep track of currently serving numbers and how many patients remain ahead of you.</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-icon"><i class="fas fa-door-open"></i></div>
+                        <h4 class="step-title">Consult Doctor</h4>
+                        <p class="step-desc">Walk directly into Dr. Suraweera's consultation room when your token is called.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="{{ url_for('index') }}" class="brand-logo">
+                        <div class="brand-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div class="brand-text">Medi<span>Queue</span></div>
+                    </a>
+                    <p style="font-size: 0.9rem; line-height: 1.6; margin-top: 0.75rem;">
+                        Modern digital queue management system designed for individual medical practices and dedicated patient care.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Navigation</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('about') }}">About Dr. Suraweera</a></li>
+                        <li><a href="{{ url_for('contact') }}">Contact & Hours</a></li>
+                        <li><a href="{{ url_for('login') }}">Doctor Portal</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Patients</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('patient') }}">Patient Registration</a></li>
+                        <li><a href="{{ url_for('track_queue') }}">Track Queue Status</a></li>
+                        <li><a href="{{ url_for('about') }}#faq">Queue Rules FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Clinic Contact</h4>
+                    <ul class="footer-links" style="font-size: 0.875rem;">
+                        <li style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                            <i class="fas fa-map-marker-alt" style="color: var(--primary); margin-top: 4px;"></i>
+                            <span>{{ clinic_address }}</span>
+                        </li>
+                        <li style="display: flex; gap: 0.5rem; align-items: center;">
+                            <i class="fas fa-phone-alt" style="color: var(--primary);"></i>
+                            <span>{{ clinic_phone }}</span>
+                        </li>
+                        <li style="display: flex; gap: 0.5rem; align-items: center;">
+                            <i class="fas fa-clock" style="color: var(--primary);"></i>
+                            <span>{{ clinic_hours }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div>&copy; {{ current_year }} {{ clinic_name }}. All rights reserved.</div>
+                <div style="display: flex; gap: 1rem;">
+                    <span>Clean • Fast • Dignified Waiting</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

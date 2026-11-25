@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found – {{ clinic_name }}</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- ================= SITE HEADER ================= -->
+    <header class="site-header">
+        <div class="container nav-wrapper">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <div class="brand-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="brand-text">Medi<span>Queue</span></div>
+            </a>
+
+            <nav class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('about') }}" class="nav-link">About</a>
+                <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="{{ url_for('track_queue') }}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-search-location"></i> Track Queue
+                </a>
+                <a href="{{ url_for('patient') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-ticket-alt"></i> Get Token
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content" style="display: flex; align-items: center;">
+        <div class="container">
+            <div style="max-width: 550px; margin: 3rem auto; text-align: center;">
+                
+                <div style="width: 96px; height: 96px; background-color: var(--secondary-tint); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 1.5rem; border: 2px dashed var(--primary);">
+                    <i class="fas fa-file-prescription"></i>
+                </div>
+
+                <div style="font-size: 4rem; font-weight: 800; color: var(--secondary); line-height: 1; margin-bottom: 0.5rem;">
+                    404
+                </div>
+
+                <h2 style="font-size: 1.75rem; font-weight: 700; color: var(--secondary); margin-bottom: 0.75rem;">
+                    {{ error_title or "Prescription Not Found" }}
+                </h2>
+
+                <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 2rem;">
+                    {{ error_message or "The page or patient resource you are searching for does not seem to exist or may have been relocated." }}
+                </p>
+
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                    <a href="{{ url_for('track_queue') }}" class="btn btn-outline">
+                        <i class="fas fa-search"></i> Track My Token
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom" style="border: none; padding-top: 0;">
+                <div>&copy; {{ current_year }} {{ clinic_name }}. All rights reserved.</div>
+                <div>Error 404 • Resource Not Found</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

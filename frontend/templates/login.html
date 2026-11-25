@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Portal Login – {{ clinic_name }}</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- ================= SITE HEADER ================= -->
+    <header class="site-header">
+        <div class="container nav-wrapper">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <div class="brand-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="brand-text">Medi<span>Queue</span></div>
+            </a>
+
+            <nav class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('about') }}" class="nav-link">About</a>
+                <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="{{ url_for('track_queue') }}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-search-location"></i> Track Queue
+                </a>
+                <a href="{{ url_for('patient') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-ticket-alt"></i> Get Token
+                </a>
+                <button class="mobile-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content">
+        <div class="container">
+            <div style="max-width: 440px; margin: 2rem auto;">
+                
+                <div class="card" style="box-shadow: var(--shadow-lg); border-radius: var(--radius-xl);">
+                    
+                    <!-- Doctor Avatar / Header -->
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <div style="width: 72px; height: 72px; background: linear-gradient(135deg, var(--secondary-tint), var(--primary-tint)); border: 2px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--primary); margin: 0 auto 1rem;">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.35rem;">Doctor Portal</h2>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">
+                            Authorized access for {{ doctor_name }}
+                        </p>
+                    </div>
+
+                    <!-- Error Alert -->
+                    <div id="loginErrorAlert" style="display: none; background-color: #FEE2E2; border: 1px solid #FECACA; color: #DC2626; border-radius: var(--radius-md); padding: 0.75rem 1rem; font-size: 0.875rem; margin-bottom: 1.25rem;">
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="doctorLoginForm" novalidate>
+                        <!-- Username -->
+                        <div class="form-group">
+                            <label for="loginUsername" class="form-label">Username</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-user-shield prefix-icon"></i>
+                                <input type="text" id="loginUsername" class="form-control" placeholder="Enter username (e.g. doctor)" required autocomplete="username">
+                            </div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="form-group">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock prefix-icon"></i>
+                                <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" required autocomplete="current-password" style="padding-right: 2.75rem;">
+                                <span class="toggle-password" id="togglePasswordBtn" title="Show or hide password">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" id="loginSubmitBtn" class="btn btn-secondary btn-lg" style="width: 100%; margin-top: 0.5rem;">
+                            <i class="fas fa-sign-in-alt"></i> Sign In to Dashboard
+                        </button>
+                    </form>
+
+                    <!-- Security Notice Footer -->
+                    <div style="margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border-light); text-align: center; font-size: 0.8rem; color: var(--text-muted);">
+                        <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
+                        Protected medical console with encrypted credentials.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom" style="border: none; padding-top: 0;">
+                <div>&copy; {{ current_year }} {{ clinic_name }}. All rights reserved.</div>
+                <div>Authorized Staff Only</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>

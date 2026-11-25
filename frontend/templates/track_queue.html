@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Queue – {{ clinic_name }}</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- ================= SITE HEADER ================= -->
+    <header class="site-header">
+        <div class="container nav-wrapper">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <div class="brand-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="brand-text">Medi<span>Queue</span></div>
+            </a>
+
+            <nav class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('about') }}" class="nav-link">About</a>
+                <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="{{ url_for('track_queue') }}" class="btn btn-primary btn-sm active">
+                    <i class="fas fa-search-location"></i> Track Queue
+                </a>
+                <a href="{{ url_for('patient') }}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-ticket-alt"></i> Get Token
+                </a>
+                {% if is_doctor_logged_in %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm btn-doctor">
+                        <i class="fas fa-user-md"></i> Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm btn-doctor">
+                        <i class="fas fa-user-md"></i> Doctor Login
+                    </a>
+                {% endif %}
+                <button class="mobile-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div class="mobile-menu" id="mobileNavMenu">
+            <a href="{{ url_for('index') }}" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            <a href="{{ url_for('about') }}" class="nav-link"><i class="fas fa-info-circle"></i> About Clinic</a>
+            <a href="{{ url_for('contact') }}" class="nav-link"><i class="fas fa-envelope"></i> Contact Us</a>
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+            <a href="{{ url_for('patient') }}" class="btn btn-outline"><i class="fas fa-ticket-alt"></i> Patient Registration</a>
+            <a href="{{ url_for('track_queue') }}" class="btn btn-primary"><i class="fas fa-search-location"></i> Track My Queue</a>
+            {% if is_doctor_logged_in %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary"><i class="fas fa-user-md"></i> Doctor Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-secondary"><i class="fas fa-user-md"></i> Doctor Login</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content">
+        <div class="container">
+            <div class="track-queue-container">
+
+                <div class="section-header" style="margin-bottom: 2rem;">
+                    <span class="section-tag">Live Patient Queue</span>
+                    <h2 class="section-title">Track Your Consultation Status</h2>
+                    <p class="section-subtitle">
+                        Enter your token number below for live status updates, refreshed automatically every 3 seconds.
+                    </p>
+                </div>
+
+                <!-- Token Lookup Form -->
+                <form id="queueLookupForm" class="queue-lookup-bar">
+                    <input type="text" id="tokenSearchInput" class="form-control" placeholder="Enter Token (e.g. MQ-001)" value="{{ initial_token }}" required autocomplete="off">
+                    <button type="submit" id="trackSubmitBtn" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Track
+                    </button>
+                </form>
+
+                <!-- 1. Serving Alert Banner (Appears when status == 'Serving') -->
+                <div id="servingAlertBanner" style="display: none; background: #D1FAE5; border: 2px solid #10B981; border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; text-align: center; animation: pulse 2s infinite;">
+                    <h3 style="color: #065F46; font-size: 1.35rem; font-weight: 800; margin-bottom: 0.35rem;">
+                        <i class="fas fa-bell"></i> It's Your Turn!
+                    </h3>
+                    <p style="color: #047857; font-weight: 600;">
+                        Your token is now being served. Please proceed directly to Dr. Suraweera's room.
+                    </p>
+                </div>
+
+                <!-- 2. Live Queue Display Card -->
+                <div class="queue-display-card" id="queueDisplayCard" style="display: none;">
+                    <!-- Currently Serving Header Banner -->
+                    <div class="serving-banner">
+                        <div>
+                            <div class="label"><i class="fas fa-broadcast-tower"></i> Doctor Consultation Room</div>
+                            <div style="font-size: 1.15rem; font-weight: 700;">Currently Serving Token</div>
+                        </div>
+                        <div class="serving-token" id="dispCurrentServing">-</div>
+                    </div>
+
+                    <!-- Patient Token & Status Hero -->
+                    <div class="patient-status-hero">
+                        <div class="patient-token-badge" id="dispPatientToken">MQ-000</div>
+                        <h3 style="font-size: 1.75rem; font-weight: 800; color: var(--secondary);" id="dispPatientName">-</h3>
+                        <div style="margin-top: 0.75rem;">
+                            <span class="badge-status badge-waiting" id="dispStatusBadge">
+                                <i class="fas fa-clock"></i> Waiting
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Patients Ahead Counter -->
+                    <div class="ahead-counter-card">
+                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                            Patients Ahead of You
+                        </div>
+                        <div class="ahead-number" id="dispPatientsAhead">0</div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">
+                            Estimated wait time: <strong id="dispEstimatedWait" style="color: var(--secondary); font-weight: 700;">-</strong>
+                        </div>
+                    </div>
+
+                    <!-- Registration Metadata -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-light); padding-top: 1.25rem; font-size: 0.875rem; color: var(--text-muted);">
+                        <div><i class="fas fa-calendar-alt" style="color: var(--primary);"></i> Queue Date: <strong id="dispQueueDate" style="color: var(--secondary);">-</strong></div>
+                        <div><i class="fas fa-user-md" style="color: var(--primary);"></i> Consulting: <strong>{{ doctor_name }}</strong></div>
+                    </div>
+
+                    <!-- Live Auto Refresh Indicator -->
+                    <div class="auto-refresh-indicator">
+                        <i class="fas fa-sync-alt spin-icon" style="color: var(--primary);"></i>
+                        <span>Auto-refreshing queue live every 3 seconds</span>
+                    </div>
+                </div>
+
+                <!-- 3. Empty Initial State -->
+                <div class="card empty-state" id="queueEmptyNotice" {% if initial_token %}style="display: none;"{% endif %}>
+                    <i class="fas fa-ticket-alt"></i>
+                    <h4>No Token Loaded</h4>
+                    <p style="font-size: 0.95rem; max-width: 420px; margin: 0 auto 1.5rem;">
+                        Enter your token number above (e.g. MQ-001) to view your position and live waiting estimates.
+                    </p>
+                    <a href="{{ url_for('patient') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-user-plus"></i> Don't have a token? Register here
+                    </a>
+                </div>
+
+                <!-- 4. Error State -->
+                <div class="card empty-state" id="queueErrorNotice" style="display: none;">
+                    <i class="fas fa-search-minus" style="color: #EF4444;"></i>
+                    <h4 style="color: #DC2626;">Token Not Found</h4>
+                    <p id="queueErrorMessage" style="font-size: 0.95rem; max-width: 420px; margin: 0 auto 1.5rem;">
+                        We couldn't locate this token in today's clinic queue.
+                    </p>
+                    <a href="{{ url_for('patient') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-user-plus"></i> Register for a New Token
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom" style="border: none; padding-top: 0;">
+                <div>&copy; {{ current_year }} {{ clinic_name }}. All rights reserved.</div>
+                <div>Live Queue Tracking</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/queue.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+# Python virtual environments & bytecode
+.venv/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables
+.env
+
+# SQLite local fallback / logs
+*.sqlite3
+*.db
+*.log
+
+# IDE & Editor folders
+.vscode/
+.idea/
+*.swp

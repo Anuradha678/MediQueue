@@ -1,0 +1,23 @@
+MediQueue review and fixes
+==========================
+
+Changes made:
+- Replaced the old fictional doctor name with Dr. Suraweera in the site, configuration, SQL seed, and database defaults.
+- Existing default doctor record is updated with the configured display name during database initialization; its password hash is preserved.
+- MySQL is now the default database backend. SQLite fallback is disabled by default so the application cannot silently save registrations into a different database.
+- Added /api/health to check whether the running application is using MySQL and whether a database query succeeds.
+- Improved patient registration validation for names with Unicode letters and phone numbers with at least seven digits.
+- Improved registration error logging and frontend error display.
+- Updated automated tests to use a separate temporary SQLite database, not the user's MySQL records or included local SQLite file.
+
+Important:
+- Keep your own .env file and its DB_PASSWORD private. Do not replace it with .env.example.
+- For normal operation, use DB_BACKEND=mysql and DB_ALLOW_SQLITE_FALLBACK=0.
+- If DEFAULT_ADMIN_NAME already exists in your .env, change it to Dr. Suraweera. If it is absent, the config default is already Dr. Suraweera.
+- The included database/mediqueue.sqlite3 file was preserved unchanged from the uploaded archive. It is not the MySQL database.
+- No DROP DATABASE, TRUNCATE, or deletion of MySQL patient records was performed.
+
+Validation:
+- Python source files passed compile-time syntax checks.
+- JavaScript files passed Node syntax checks.
+- Live MySQL integration tests could not be run in the review environment because it does not have access to the user's local MySQL Server.

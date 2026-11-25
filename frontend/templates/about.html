@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Dr. Suraweera & MediQueue – {{ clinic_name }}</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- ================= SITE HEADER ================= -->
+    <header class="site-header">
+        <div class="container nav-wrapper">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <div class="brand-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="brand-text">Medi<span>Queue</span></div>
+            </a>
+
+            <nav class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('about') }}" class="nav-link active">About</a>
+                <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="{{ url_for('track_queue') }}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-search-location"></i> Track Queue
+                </a>
+                <a href="{{ url_for('patient') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-ticket-alt"></i> Get Token
+                </a>
+                {% if is_doctor_logged_in %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm btn-doctor">
+                        <i class="fas fa-user-md"></i> Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm btn-doctor">
+                        <i class="fas fa-user-md"></i> Doctor Login
+                    </a>
+                {% endif %}
+                <button class="mobile-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div class="mobile-menu" id="mobileNavMenu">
+            <a href="{{ url_for('index') }}" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            <a href="{{ url_for('about') }}" class="nav-link active"><i class="fas fa-info-circle"></i> About Clinic</a>
+            <a href="{{ url_for('contact') }}" class="nav-link"><i class="fas fa-envelope"></i> Contact Us</a>
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+            <a href="{{ url_for('patient') }}" class="btn btn-primary"><i class="fas fa-ticket-alt"></i> Patient Registration</a>
+            <a href="{{ url_for('track_queue') }}" class="btn btn-outline"><i class="fas fa-search-location"></i> Track My Queue</a>
+        </div>
+    </header>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content">
+        <div class="container">
+            
+            <div class="about-hero">
+                <span class="section-tag">Compassionate Care, Modern Flow</span>
+                <h1 class="section-title">About {{ clinic_name }}</h1>
+                <p class="section-subtitle" style="max-width: 600px; margin: 0 auto;">
+                    A personalized private practice where every patient is treated with dignity, attention, and punctual digital care.
+                </p>
+            </div>
+
+            <!-- Doctor Profile Highlight -->
+            <div class="doctor-profile-card">
+                <div class="doctor-avatar-box">
+                    <i class="fas fa-user-doctor"></i>
+                </div>
+                <div class="doctor-details">
+                    <span class="section-tag">Primary Physician</span>
+                    <h3>{{ doctor_name }}</h3>
+                    <div class="doctor-spec">MBBS, MD (Family Medicine) • 14+ Years Clinical Experience</div>
+                    <p style="color: var(--text-muted); line-height: 1.7; margin-bottom: 1.25rem;">
+                        Dr. Suraweera founded MediQueue Clinic with a singular vision: to eliminate the chaos, anxiety, and crowded waiting rooms of traditional clinics. By focusing on a dedicated single-doctor model paired with real-time digital queuing, Dr. Suraweera provides uninterrupted, high-quality healthcare without unnecessary delays.
+                    </p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <div style="background: var(--bg-main); padding: 0.5rem 1rem; border-radius: var(--radius-md); font-size: 0.85rem; border: 1px solid var(--border-color);">
+                            <i class="fas fa-check-circle" style="color: var(--primary);"></i> Board Certified
+                        </div>
+                        <div style="background: var(--bg-main); padding: 0.5rem 1rem; border-radius: var(--radius-md); font-size: 0.85rem; border: 1px solid var(--border-color);">
+                            <i class="fas fa-check-circle" style="color: var(--primary);"></i> General & Preventive Care
+                        </div>
+                        <div style="background: var(--bg-main); padding: 0.5rem 1rem; border-radius: var(--radius-md); font-size: 0.85rem; border: 1px solid var(--border-color);">
+                            <i class="fas fa-check-circle" style="color: var(--primary);"></i> Patient-First Philosophy
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Practice Pillars -->
+            <div class="features-grid" style="margin-bottom: 4rem;">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3 class="feature-title">One Doctor, Undivided Care</h3>
+                    <p class="feature-desc">
+                        No rotating staff or unfamiliar faces. You consult directly with Dr. Suraweera who knows your medical background, treatment history, and unique personal health goals.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <h3 class="feature-title">Zero Waiting Room Agony</h3>
+                    <p class="feature-desc">
+                        Our transparent digital queue system lets you monitor your token status from the comfort of your home, vehicle, or a nearby café until it is almost your turn.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-shield-virus"></i>
+                    </div>
+                    <h3 class="feature-title">Healthier Environment</h3>
+                    <p class="feature-desc">
+                        Minimizing crowded indoor waiting rooms reduces airborne cross-infection risks for immunocompromised patients, children, and elderly community members.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Clinical Services List -->
+            <div class="card" style="margin-bottom: 3rem;">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-notes-medical" style="color: var(--primary);"></i> Clinical Services & Consultations</h3>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+                    <div>
+                        <h4 style="font-size: 1.05rem; color: var(--secondary); margin-bottom: 0.35rem;"><i class="fas fa-stethoscope" style="color: var(--primary);"></i> Routine Health Examinations</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-muted);">Annual checkups, blood pressure screenings, pulse oximetry, and general wellness counseling.</p>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 1.05rem; color: var(--secondary); margin-bottom: 0.35rem;"><i class="fas fa-pills" style="color: var(--primary);"></i> Chronic Care Management</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-muted);">Long-term monitoring and personalized plans for diabetes, cholesterol, hypertension, and asthma.</p>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 1.05rem; color: var(--secondary); margin-bottom: 0.35rem;"><i class="fas fa-vial" style="color: var(--primary);"></i> Diagnostic & Lab Review</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-muted);">In-depth doctor reviews of blood panels, lipid profiles, imaging reports, and medical tests.</p>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 1.05rem; color: var(--secondary); margin-bottom: 0.35rem;"><i class="fas fa-baby" style="color: var(--primary);"></i> Pediatric & Family Health</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-muted);">Child wellness checks, seasonal cold and flu treatments, and pediatric developmental assessments.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom" style="border: none; padding-top: 0;">
+                <div>&copy; {{ current_year }} {{ clinic_name }}. All rights reserved.</div>
+                <div>Dr. Suraweera</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

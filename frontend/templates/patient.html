@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration – {{ clinic_name }}</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- ================= SITE HEADER ================= -->
+    <header class="site-header">
+        <div class="container nav-wrapper">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <div class="brand-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="brand-text">Medi<span>Queue</span></div>
+            </a>
+
+            <nav class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('about') }}" class="nav-link">About</a>
+                <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="{{ url_for('track_queue') }}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-search-location"></i> Track Queue
+                </a>
+                <a href="{{ url_for('patient') }}" class="btn btn-primary btn-sm active">
+                    <i class="fas fa-ticket-alt"></i> Get Token
+                </a>
+                {% if is_doctor_logged_in %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm btn-doctor">
+                        <i class="fas fa-user-md"></i> Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm btn-doctor">
+                        <i class="fas fa-user-md"></i> Doctor Login
+                    </a>
+                {% endif %}
+                <button class="mobile-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div class="mobile-menu" id="mobileNavMenu">
+            <a href="{{ url_for('index') }}" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            <a href="{{ url_for('about') }}" class="nav-link"><i class="fas fa-info-circle"></i> About Clinic</a>
+            <a href="{{ url_for('contact') }}" class="nav-link"><i class="fas fa-envelope"></i> Contact Us</a>
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+            <a href="{{ url_for('patient') }}" class="btn btn-primary"><i class="fas fa-ticket-alt"></i> Patient Registration</a>
+            <a href="{{ url_for('track_queue') }}" class="btn btn-outline"><i class="fas fa-search-location"></i> Track My Queue</a>
+            {% if is_doctor_logged_in %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary"><i class="fas fa-user-md"></i> Doctor Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-secondary"><i class="fas fa-user-md"></i> Doctor Login</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content">
+        <div class="container">
+            <div class="registration-container">
+
+                <!-- 1. Registration Form Card -->
+                <div class="card" id="registrationFormCard">
+                    <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                        <span class="section-tag" style="margin-bottom: 0;">Quick Digital Check-In</span>
+                        <h2 class="card-title" style="font-size: 1.5rem;">Patient Registration</h2>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">
+                            Enter your details below to receive your daily consultation token immediately.
+                        </p>
+                    </div>
+
+                    <form id="patientRegistrationForm" novalidate>
+                        <!-- Patient Full Name -->
+                        <div class="form-group">
+                            <label for="patientName" class="form-label">Patient Full Name <span style="color: #EF4444;">*</span></label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-user prefix-icon"></i>
+                                <input type="text" id="patientName" name="patient_name" class="form-control" placeholder="e.g. Sarah Connor" required autocomplete="name">
+                            </div>
+                            <div id="nameError" class="feedback-text error"></div>
+                            <div class="feedback-text help">Please provide your official name for medical records.</div>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="form-group">
+                            <label for="patientPhone" class="form-label">Phone Number <span style="color: #EF4444;">*</span></label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-phone-alt prefix-icon"></i>
+                                <input type="tel" id="patientPhone" name="phone" class="form-control" placeholder="e.g.0712345678" required autocomplete="tel">
+                            </div>
+                            <div id="phoneError" class="feedback-text error"></div>
+                            <div class="feedback-text help">Used to identify your queue spot. We will never share your number.</div>
+                        </div>
+
+                        <!-- Doctor Notice Banner -->
+                        <div style="background-color: var(--secondary-tint); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.9rem 1.1rem; margin-bottom: 1.75rem; display: flex; gap: 0.75rem; align-items: center;">
+                            <i class="fas fa-user-md" style="color: var(--primary); font-size: 1.4rem;"></i>
+                            <div style="font-size: 0.85rem; color: var(--secondary);">
+                                <strong>Consulting Today:</strong> {{ doctor_name }}<br>
+                                <span style="color: var(--text-muted);">Tokens are processed in sequential arrival order.</span>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" id="submitRegBtn" class="btn btn-primary btn-lg" style="width: 100%;">
+                            <i class="fas fa-ticket-alt"></i> Generate Queue Token
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 2. Token Confirmation Card (Shown dynamically on success) -->
+                <div class="token-confirmation-card" id="tokenConfirmationCard">
+                    <div class="token-header-badge">
+                        <i class="fas fa-check"></i>
+                    </div>
+
+                    <span class="section-tag">Registration Successful</span>
+                    <h3 style="font-size: 1.4rem; color: var(--secondary); margin-bottom: 0.25rem;">Here is your Daily Token</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Please keep this token visible on your device.</p>
+
+                    <!-- Large Token Badge -->
+                    <div class="token-number-hero" id="confTokenNumber">MQ-001</div>
+
+                    <!-- Token Details Table -->
+                    <div class="token-details-table">
+                        <div class="token-row">
+                            <span class="lbl">Patient Name</span>
+                            <span class="val" id="confPatientName">-</span>
+                        </div>
+                        <div class="token-row">
+                            <span class="lbl">Date</span>
+                            <span class="val" id="confQueueDate">-</span>
+                        </div>
+                        <div class="token-row">
+                            <span class="lbl">Queue Status</span>
+                            <span class="val" id="confStatus" style="color: #D97706; font-weight: 700;">Waiting</span>
+                        </div>
+                        <div class="token-row">
+                            <span class="lbl">Patients Ahead</span>
+                            <span class="val" id="confPatientsAhead" style="color: var(--primary); font-weight: 700;">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <a href="{{ url_for('track_queue') }}" id="confTrackBtn" class="btn btn-primary btn-lg">
+                            <i class="fas fa-search-location"></i> Track My Queue Live
+                        </a>
+                        <button type="button" class="btn btn-outline" onclick="window.print()">
+                            <i class="fas fa-print"></i> Print Token Slip
+                        </button>
+                        <button type="button" id="registerAnotherBtn" class="btn btn-sm" style="color: var(--text-muted); background: transparent; border: none; margin-top: 0.5rem; cursor: pointer;">
+                            <i class="fas fa-user-plus"></i> Register Another Patient
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom" style="border: none; padding-top: 0;">
+                <div>&copy; {{ current_year }} {{ clinic_name }}. All rights reserved.</div>
+                <div>Need help? Call {{ clinic_phone }}</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/patient.js') }}"></script>
+</body>
+</html>
